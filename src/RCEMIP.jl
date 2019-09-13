@@ -38,8 +38,52 @@ z_q2 = 7500e-3
 Γ = 0.0067
 p_0 = 1014.8
 
+# Table 3
+lower_grid = [
+	37.0,
+	112.0,
+	194.0,
+	288.0,
+	395.0,
+	520.0,
+	667.0,
+	843.0,
+	1062.0,
+	1331.0,
+	1664.0,
+	2055.0,
+	2505.0,
+	3000.0
+]
+
 
 # Profiles
+
+"""
+Generate vertical grid
+
+Parameters:
+	z_top: model height (km)
+
+Returns:
+	Vertical grid (m)
+"""
+function vertical_grid(z_top)
+
+	z = lower_grid[1]
+	ii = 2
+	while z[end] < z_top*1e3
+		if z[end] < 3000.0
+			push!(z, lower_grid[ii])
+		else
+			push!(z, z[end] + 500.0)
+		end
+		ii += 1
+	end
+	return z
+
+end
+
 """
 Calculate ozone profile
 
