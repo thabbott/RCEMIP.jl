@@ -1,0 +1,4 @@
+name = "RCEMIP"
+uuid = "6bd86295-b8de-4ce6-9e45-321f1e5338ca"
+authors = "Tristan Abbott <thabbott@mit.edu>"
+version = "0.0.0"
