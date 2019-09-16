@@ -1,5 +1,7 @@
 module RCEMIP
 
+import Roots
+
 # Parameters
 
 # Table 1
@@ -70,7 +72,8 @@ Returns:
 """
 function vertical_grid(z_top)
 
-	z = lower_grid[1]
+	z = []
+	push!(z, lower_grid[1])
 	ii = 2
 	while z[end] < z_top*1e3
 		if z[end] < 3000.0
@@ -116,8 +119,9 @@ Returns:
 """
 function q_v(z, T; use_extended = false)
 
+	q_0 = 0.0
 	if use_extended
-		q0 = q_0_extended(T)
+		q_0 = q_0_extended(T)
 	elseif T == 295
 		q_0 = q_0295
 	elseif T == 300
@@ -129,9 +133,9 @@ function q_v(z, T; use_extended = false)
 			"must set use_extended = true if T is not one of 295, 300, and 305"))
 	end
 
-	q = q_0 .* exp(-z./z_q1) .* exp(-(z./z_q2).^2.0)
+	q = q_0 .* exp.(-z./z_q1) .* exp.(-(z./z_q2).^2.0)
 	strat = findall(z .> z_t)
-	q[strat] = q_t
+	q[strat] .= q_t
 	return q
 
 end
@@ -149,8 +153,12 @@ function q_0_extended(T)
 	esat0 = 611.0
 	T0 = 273.15
 	RH_s = 0.8
-	e = RH_s .* esat0 .* exp(-Lv0./Rd .* (1.0./T .- 1.0./T0))
-	return (Rd / Rv) .* e ./ (1e2 * p_s)
+	esat = (tt) -> esat0 .* exp.(-Lv0./Rv .* (1.0./tt .- 1.0./T0))
+	qsat = (tt) -> (Rd / Rv) .* esat(tt) ./ (1e2 * p_0)
+	obj = (tt) -> tt .* (1 .+ 0.608 .* RH_s .* qsat(tt)) .- T
+	T_a = Roots.find_zero(obj, (150.0, 500.0))
+	println(T_a)
+	return RH_s * qsat(T_a)
 end
 
 """
@@ -169,7 +177,7 @@ function T_v(z, T)
 	T_v = T_v0 .- Γ.*z
 	strat = findall(z .> z_t)
 	T_t = T_v[strat[1]]
-	T_v[strat] = T_t
+	T_v[strat] .= T_t
 	return T_v
 
 end
@@ -200,15 +208,14 @@ Returns:
 """
 function p(z, T)
 
-	T_v0 = T
-	T_v = T_v0 .- Γ.*z
-	p = p_0 * (T_v./T_v0).^(g./(Rd.*Γ))
+	T_virt = T_v(z, T)
+	p = p_0 .* (T_virt./T_virt[1]).^(g./(1e-3.*Rd.*Γ))
 	strat = findall(z .> z_t)
 	itp = strat[1]
 	p_tp = p[itp]
 	z_tp = z[itp]
-	T_vtp = T_v[itp]
-	p[itp:end] = p_tp .* exp(-g./(Rd.*T_vtp).*(z[itp:end] .- z_tp))
+	T_vtp = T_virt[itp]
+	p[itp:end] .= p_tp .* exp.(-g./(Rd.*T_vtp).*(z[itp:end] .- z_tp))
 	return p 
 
 end
