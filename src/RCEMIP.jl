@@ -173,7 +173,7 @@ Returns:
 function T_v(z, T)
 
 	T_v0 = T
-	T_v = T_v0 .- Γ.*z
+	T_v = T_v0 .- 1e3.*Γ.*z
 	strat = findall(z .> z_t)
 	T_t = T_v[strat[1]]
 	T_v[strat] .= T_t
@@ -208,7 +208,7 @@ Returns:
 function p(z, T)
 
 	T_virt = T_v(z, T)
-	p = p_0 .* (T_virt./T_virt[1]).^(g./(1e-3.*Rd.*Γ))
+	p = p_0 .* (T_virt./T_virt[1]).^(g./(Rd.*Γ))
 	strat = findall(z .> z_t)
 	itp = strat[1]
 	p_tp = p[itp]
