@@ -40,12 +40,12 @@ close(fid)
 
 # Generate trc file
 # Calculate ozone profile
-mw_o3 = 3.0 * 16.0
+mw_O3 = 3.0 * 16.0
 mw_air = 29.0
-z = 70.00:-0.25:0.00
+z = collect(0.00:0.25:70.00)
 p = RCEMIP.p(z, T_s)
-η_o3 = RCEMIP.O3(p)
-r_o3 = η_O3 .* mw_o3 ./ mw_air
+η_O3 = RCEMIP.η_O3(p)
+r_O3 = η_O3 .* mw_O3 ./ mw_air
 
 # Calculate N2O profile
 mw_N2O = 2.0 * 14.0 + 16.0
@@ -53,7 +53,7 @@ mw_N2O = 2.0 * 14.0 + 16.0
 r_N2O = η_N2O .* mw_N2O ./ mw_air
 
 # Calculate CH4 profile
-mw_CH4 = 12.0 * 4.0 * 1.0
+mw_CH4 = 12.0 + 4.0 * 1.0
 η_CH4 = RCEMIP.η_CH4 .* ones(size(p))
 r_CH4 = η_CH4 * mw_CH4 / mw_air
 
@@ -71,9 +71,9 @@ write(fid,
 write(fid,
 	" z(km)   p(mb)   o3(g/g)   n2o(g/g)   ch4(g/g)   cfc11(g/g)   cfc12(g/g)\n"
 )
-for ii = 1:length(p)
+for ii = length(p):-1:1
 	write(fid,
-		@sprintf("%11.3f %11.3f %.4e %.4e %.4e %.4e %.4e\n",
+		@sprintf("%11.3f %11.3f %11.4e %11.4e %11.4e %11.4e %11.4e\n",
 			z[ii], p[ii], r_O3[ii], r_N2O[ii], r_CH4[ii], r_CFC11[ii], r_CFC12[ii]
 		)
 	)

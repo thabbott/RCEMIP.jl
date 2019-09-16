@@ -97,7 +97,7 @@ Returns:
 	ozone molar concentration (nondim)
 """
 function η_O3(p)
-	return g_1 .* p.^g_2 .* exp(-p./g3)
+	return g_1 .* p.^g_2 .* exp.(-p./g_3)
 end
 
 """
@@ -157,7 +157,6 @@ function q_0_extended(T)
 	qsat = (tt) -> (Rd / Rv) .* esat(tt) ./ (1e2 * p_0)
 	obj = (tt) -> tt .* (1 .+ 0.608 .* RH_s .* qsat(tt)) .- T
 	T_a = Roots.find_zero(obj, (150.0, 500.0))
-	println(T_a)
 	return RH_s * qsat(T_a)
 end
 
@@ -215,7 +214,7 @@ function p(z, T)
 	p_tp = p[itp]
 	z_tp = z[itp]
 	T_vtp = T_virt[itp]
-	p[itp:end] .= p_tp .* exp.(-g./(Rd.*T_vtp).*(z[itp:end] .- z_tp))
+	p[itp:end] .= p_tp .* exp.(-1e3*g./(Rd.*T_vtp).*(z[itp:end] .- z_tp))
 	return p 
 
 end
